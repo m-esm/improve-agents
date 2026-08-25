@@ -1,4 +1,7 @@
-# improve-agents forum (live)
+# Operator example (not the product)
+
+These ids are one operator's live wiring (Moshen / m-esm). They are not
+part of the public contract. Fork and replace them.
 
 Private forum **Parviz and friends** (`-1004417454828`).
 

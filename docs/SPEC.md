@@ -1,33 +1,37 @@
-# improve-agents — reconciled spec (10-round panel)
+# Contract
 
-Supervisor consolidation of 30 SSA plans (Claude pragmatic / Codex risk / Grok architecture × 10). Claude rounds 7–10 dumped JSON wrappers; load-bearing text is Codex + Grok round 10 plus Claude’s round-10 plan file.
-
-`done = cron e2010b56833a is a zero-token-on-quiet-days critic with a stdlib wake gate, proven by fixture ticks + live job fields; not required: Hermes patch, daemon, weekly extra LLM, idea registry.`
+`done = a zero-token-on-quiet-days critic with a stdlib wake gate, proven by python3 tests/check-gate.py; not required: Hermes core patch, daemon, weekly extra LLM, idea registry.`
 
 ## One job, two actors
 
-- **Job:** Convert newly recorded, unacked, qualifying agent-runtime friction into 0–2 pickable, evidenced proposals in topic 371.
-- **Critic:** cron `e2010b56833a`. Never ships.
-- **Executor:** live gateway session `agent:main:telegram:group:-1004417454828:371`. Ships one picked item via live SSA.
+- **Job:** Convert newly recorded, unacked, qualifying agent-runtime friction into 0-2 pickable, evidenced proposals.
+- **Critic:** the weekday cron (skill `agent-process-review`). Never ships.
+- **Executor:** a live session after an explicit current pick. Ships one picked item via live smart-subagents.
 
-## Decisions (disagreements resolved)
+Forum / topic / cron ids are operator wiring. One example lives in `skill/references/improve-agents-forum.md`. They are not the public contract.
+
+## Decisions
 
 | Fight | Winner | Why |
 |---|---|---|
-| 3–7 ideas vs 0–2 | 0–2 | 3–7 is the recap engine |
-| Two-source / 30-day vs one failure qualifies | One failure (slice 1) | Ledger is 23 rows, one day; two-source starves |
-| `session_search`+`no_mcp` vs +`file` | `session_search` + `no_mcp` | File still writes; mechanism proof waits for the executor |
+| 3-7 ideas vs 0-2 | 0-2 | 3-7 is the recap engine |
+| Two-source / 30-day vs one failure qualifies | One failure (slice 1) | A small ledger plus a two-source rule starves the critic |
 | Skills: review+librarian vs review only | `agent-process-review` only | Extra skills are paid on every wake |
 | Ack: batch token vs output-file-only | Sidecar pending/acked; ack only on ok + no delivery error + non-silent output | Output is saved before delivery; silent ticks also look `ok` |
-| Exactly-once vs at-least-once | At-least-once | executions.db has no durable delivery_outcome |
+| Exactly-once vs at-least-once | At-least-once | There is no durable delivery_outcome |
 | `monitor_script` / `no_agent` / weekly LLM / daemon | Reject | Persist-before-run, verbatim stdout, recap, extra lifecycle |
-| Cut over vs fire old prompt once | Cut over | Job has never run; a 3–7 recap is skip-list pollution |
 
-Open, not slice 1: auto-capture of unstructured Moshen corrections (needs a Hermes ingress hook).
+Open, not slice 1: auto-capture of unstructured operator corrections (needs a host ingress hook).
 
-## First slice (what we ship)
+## Wake and ack
 
-1. `~/.hermes/scripts/improve-agents-gate.py` + `~/.hermes/cron/improve-agents-state.json`
-2. Rewrite `agent-process-review`
-3. Edit job `e2010b56833a` in place (id, schedule, delivery stay)
-4. Rollback snapshot of the old prompt/skills/script
+`scripts/improve-agents-gate.py` prints digest lines (if any), then one JSON line with `wakeAgent`.
+
+- SSA ledger: `partial` / `rejected` / `blocked` / `env-blocked` / `rate-limited`, or `retries > 0`, or `verification_passed` is false.
+- Other crons: `last_status=error` or `last_delivery_error` set. The critic job never qualifies itself.
+- Quiet: `{"wakeAgent":false}`. Pending is sticky on wake until ack.
+- Ack: self job `ok`, no `last_delivery_error`, newest `*.md` in the output dir is non-empty and is not the host wake stub (`Script gate returned \`wakeAgent=false\``).
+
+## Out of this repo
+
+Hermes core patches, extra registries, landing pages, and recap-shaped 3-7 idea lists.

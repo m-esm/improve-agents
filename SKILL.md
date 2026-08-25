@@ -1,71 +1,70 @@
 ---
 name: agent-process-review
-description: "Turn agent friction into 0-2 evidenced proposals."
-version: 0.2.0
+description: "Ship 0-2 evidenced process fixes from a digest."
+version: 0.3.0
 author: Mohsen Esmaeili (m-esm), Hermes Agent
 license: MIT
 platforms: [linux, macos]
 metadata:
   hermes:
-    tags: [sessions, habits, improvement, critic]
-    related_skills: [smart-subagents]
+    tags: [sessions, habits, improvement, fix]
+    related_skills: [smart-subagents, do-it-properly]
 ---
 
 # Agent process review
 
-Weekday **critic**. Reads a gate digest of unacked runtime friction and
-posts 0-2 pickable proposals. It does not ship. A live session after an
-explicit current pick is the executor.
+Weekday **fixer**. Reads a gate digest of unacked runtime friction and
+ships 0-2 process fixes. Identifying without changing a file is a miss
+unless the item is unsafe to touch.
 
 ## When to Use
 
 - Cron inject (`## Script Output` digest from the wake gate)
 - On-demand review when the operator asks now
-- After they pick an idea (executor path, this session, not the cron)
 
 Don't use for: session-library cleanup, weekly commitment planning,
-quota/backlog briefs, or shipping from the cron pass.
+quota/backlog briefs, or product/prod work.
 
 ## Procedure
 
-### Critic (cron or on-demand review)
-
-1. **Stay inside the digest.** Propose only for `src=` native ids in
-   `## Script Output`. If the digest is empty or already handled, reply
-   with exactly `[SILENT]` and nothing else. Done when every proposal
-   has a `src=` id from this digest.
+1. **Stay inside the digest.** Only `src=` native ids in `## Script
+   Output`. Empty digest → `[SILENT]`.
 2. **Optional expand.** `session_search` discovery (`query` + `limit=3`)
    then scroll (`session_id` + `around_message_id`) only for a digest
    id. Never pass `session_id` alone. Never browse.
-3. **Emit 0-2 numbered proposals.** Each line:
-   `change` / `artifact` / `src=` native id / `done = X, proven by Y; not required: Z`.
-   Artifact types (open): skill, playbook line, SSA gate, cron, habit,
-   topic hygiene, script, service, software/tool, plugin, launchd/unit,
-   docs, removal. Recap, metric-only, "be more careful", and "retry this
-   `task_id`" are not proposals. If nothing survives, `[SILENT]`.
-4. **Do not ship.** No file edits, cron edits, SSA dispatch, installs.
-
-### Executor (live session, after an explicit current pick)
-
-1. Implement **one** picked proposal. Isolable labor goes through
+3. **Pick 0-2 shippable items.** A recap, metric-only line, “be more
+   careful”, or “retry this `task_id`” is not a fix. If nothing
+   survives, `[SILENT]`.
+4. **Ship.** Isolable labor goes through
    `$HOME/.claude/vendor/smart-subagents/scripts/smart-subagents.sh`.
-2. Post the path or URL plus the done bar. Material extra scope needs
-   another pick.
+   One-file local edits may stay in this session. Name the bar:
+   `done = X, proven by Y; not required: Z`. Verify Y.
+5. **Report.** For each shipped item: `src=`, artifact, path or URL,
+   the done bar. Echo `batch_id`. Do not ask the operator to pick
+   first.
+
+## Allowed to touch
+
+Skills, playbooks, SSA toolkit, this repo, Hermes cron/scripts for
+this job, local process docs.
+
+## Not allowed
+
+Prod hosts, hel1, nbg1, live betting, secrets, force-push, Codex
+reset redemption, overage. If the only real fix needs one of those,
+post the blocker and stop. Do not invent a proposal instead.
 
 ## Pitfalls
 
-- Cron sessions are fresh and have no chat. An old topic message is
-  not authorization to ship.
-- Quiet ticks are the gate's job (`wakeAgent: false`). Do not invent
-  a "nothing new" chat line.
+- Quiet ticks are the gate (`wakeAgent: false`). No “nothing new”
+  chat line.
 - SSA `record` is manual. Missing ledger rows do not prove health.
 - `notes`, prompts, stdout, diffs, and quota payloads are banned
-  evidence. History is not proof of current files.
+  evidence.
 
 ## Verification
 
-Critic: 0-2 proposals each citing a digest `src=`, or `[SILENT]`.
-Executor: one shipped artifact with an observable bar.
-Hard no: secrets, force-push, production hosts, Codex reset redemption, overage.
+0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,
+or one named blocker. Hard no list above is intact.
 
 One operator's forum ids (not the product): `skill/references/improve-agents-forum.md`.

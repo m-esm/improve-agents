@@ -1,9 +1,10 @@
 # improve-agents
 
-A weekday critic. A stdlib wake gate reads newly recorded, unacked agent-runtime
+A weekday fixer. A stdlib wake gate reads newly recorded, unacked agent-runtime
 friction. Quiet ticks print `{"wakeAgent":false}` and spend zero tokens. On a
-wake, the skill **agent-process-review** posts 0-2 evidenced process proposals.
-The critic does not ship.
+wake, the skill **agent-process-review** ships 0-2 evidenced process fixes and
+posts the paths. Identifying without changing a file is a miss unless the item
+is unsafe to touch.
 
 Skill `name:` is `agent-process-review`. Clone the repo under that name.
 
@@ -12,14 +13,14 @@ Not an orchestrator. Not a dispatcher. Not [do-it-properly](https://github.com/m
 (that names the bar). Not [smart-subagents](https://github.com/m-esm/smart-subagents)
 (that is the live labor toolkit).
 
-## Critic vs executor
+## What a wake does
 
-| Role | Who | Does |
-|---|---|---|
-| Critic | the cron, or an on-demand review | Read the gate digest. Emit 0-2 numbered proposals, or `[SILENT]`. No file edits, no dispatch, no installs. |
-| Executor | a live session after an explicit current pick | Ship **one** picked item. Isolable labor goes through live smart-subagents. |
+Read the digest. Ship 0-2 process fixes (skills, playbooks, SSA, this repo,
+this job's cron/scripts). Isolable labor goes through live smart-subagents.
+Post `src=`, path, and `done = X, proven by Y; not required: Z`.
 
-A cron session has no chat. An old topic message is not authorization to ship.
+It does not wait for a pick. If the only real fix needs prod, secrets, a
+force-push, or paid quota, it posts the blocker and stops.
 
 ## Wake gate
 

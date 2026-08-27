@@ -139,6 +139,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Classify the dead probe as dead, not as an unanswered ASSIGN for a sibling channel.
 5. Do not edit the hourly cron from an assignee job.
 
+**`omit-3dvp` (never omit #3dvp unless a real mid-flight ASSIGN is open):**
+1. Dropping `#3dvp` from the hourly board is class `omit-3dvp` unless that channel has an unanswered ASSIGN with no later DONE.
+2. A dead probe, retired Dexsport, SKIP on another channel, or empty queue does not omit `#3dvp`.
+3. Still emit `#3dvp`'s row. The only legal skip is a real mid-flight ASSIGN on `#3dvp` itself (`SKIP` + reason).
+4. Do not treat sibling-channel SKIP, CDP death, or "nothing for 3dvp" as grounds to drop the channel.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

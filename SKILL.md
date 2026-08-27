@@ -69,6 +69,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Skip `no_agent` script jobs.
 5. Confirm `model` and `provider` are set; snapshots may be empty once pinned.
 
+**Two-agent mention (bot-to-bot):**
+1. First token of a peer message is a raw `<@id>` (`DISCORD_BOTS_REQUIRE_INLINE_MENTION`).
+2. A reply chip is not a ping and does not wake the peer.
+3. Every explanation that should continue starts with that raw id.
+4. Tool-progress cards omit the mention.
+5. Omit the mention = end-of-exchange.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

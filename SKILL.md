@@ -125,6 +125,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not mint a new ASSIGN cron or board line from a second host.
 5. Do not edit the hourly cron from an assignee job.
 
+**`skip-mid-flight` (SKIP channel with open ASSIGN and no DONE):**
+1. A channel with an ASSIGN and no later DONE is still in flight; skip it this hour (`SKIP` + reason).
+2. Do not mint a new ASSIGN cron or board line while that ASSIGN is unanswered.
+3. Open ASSIGN + no DONE is not a miss, a retry, or a slot for a replacement row.
+4. Classify it as in-flight, not as `stale-assign` (that class is a young DONE).
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

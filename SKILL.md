@@ -62,6 +62,13 @@ post the blocker and stop. Do not invent a proposal instead.
 - `notes`, prompts, stdout, diffs, and quota payloads are banned
   evidence.
 
+**`[drift_skip]` pin (after provider drift):**
+1. Unpinned agent crons fail closed with `[drift_skip]` and spend nothing.
+2. The `cronjob` tool cannot set `model`/`provider`. Use CLI only.
+3. `hermes cron edit <id> --model <model> --provider <provider>`
+4. Skip `no_agent` script jobs.
+5. Confirm `model` and `provider` are set; snapshots may be empty once pinned.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

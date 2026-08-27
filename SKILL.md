@@ -83,6 +83,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Never dump intermediate reads, SSA `iteration N/150`, or renders as in-channel cards.
 5. Same rule for `#team` (parent or retro): routing only, no progress stream.
 
+**`stale-assign` (hourly board reissues already-shipped rows):**
+1. Re-ASSIGN of a channel whose last ASSIGN is already DONE is class `stale-assign`.
+2. Before inventing that channel's row, read the last ASSIGN and whether a DONE landed after it.
+3. If that ASSIGN is DONE and the DONE is younger than 3 hours, skip the channel this hour (`SKIP` + reason).
+4. Do not mint a new ASSIGN cron or board line for a skipped channel.
+5. Re-assign only if there is no DONE, or the DONE is 3 hours or older. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

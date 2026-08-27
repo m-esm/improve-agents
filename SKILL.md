@@ -90,6 +90,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not mint a new ASSIGN cron or board line for a skipped channel.
 5. Re-assign only if there is no DONE, or the DONE is 3 hours or older. Do not edit the hourly cron from an assignee job.
 
+**`mid-flight-assign` (unanswered ASSIGN is still in flight):**
+1. An ASSIGN with no later DONE is class `mid-flight-assign`, not `stale-assign`.
+2. `stale-assign` is a young DONE. Mid-flight is the opposite: the assignee has not reported yet.
+3. Skip the channel this hour (`SKIP` + reason). Do not mint a new ASSIGN cron or board line.
+4. Do not treat silence as a miss, a retry, or a second row.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

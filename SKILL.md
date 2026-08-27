@@ -97,6 +97,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not treat silence as a miss, a retry, or a second row.
 5. Do not edit the hourly cron from an assignee job.
 
+**`novel-vs-last` (prior hour's verb/artifact, per channel):**
+1. A new ASSIGN must not reuse the prior hour's verb and artifact for that channel.
+2. Verb = the action word. Artifact = the file, job, or surface named in the ASSIGN.
+3. Same channel + same verb + same artifact as that channel's last hour is class `novel-vs-last`; skip (`SKIP` + reason).
+4. Different verb or different artifact counts as novel and may ship.
+5. Do not mint a new ASSIGN cron or board line for a reuse. Do not pad the same file with another copy of the last pitfall class.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

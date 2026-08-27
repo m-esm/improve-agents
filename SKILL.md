@@ -132,6 +132,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Classify it as in-flight, not as `stale-assign` (that class is a young DONE).
 5. Do not edit the hourly cron from an assignee job.
 
+**`dead-cdp-not-skip` (dead CDP probe is not mid-flight SKIP for another channel):**
+1. A dead CDP / `:9222` probe is class `dead-cdp-not-skip`, not `mid-flight-assign` or `skip-mid-flight` on a different channel.
+2. Dead CDP on one surface (retired Dexsport Chrome, a probe tab) does not put `#3dvp` or any other channel in flight.
+3. Still emit that other channel's row (viewer / docker / HTTP / CAD-freeze). Do not `SKIP` it because a probe died.
+4. Classify the dead probe as dead, not as an unanswered ASSIGN for a sibling channel.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

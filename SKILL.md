@@ -111,6 +111,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Skip those channels (`SKIP` + reason). Do not mint a new ASSIGN cron or board line for them.
 5. Do not edit the hourly cron from an assignee job.
 
+**`team-progress` (no tool-progress cards in #team):**
+1. `#team` (parent or retro) is routing only. `⏳` / gateway tool-progress cards there are class `team-progress`.
+2. A reply chip, status ping, or hourglass in `#team` is not a result. Do not post them.
+3. File/skill/ledger work: SSA or one batched call so only the final reply lands, and never in `#team`.
+4. Never dump intermediate reads, SSA `iteration N/150`, or renders as `#team` cards.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

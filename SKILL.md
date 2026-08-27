@@ -118,6 +118,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Never dump intermediate reads, SSA `iteration N/150`, or renders as `#team` cards.
 5. Do not edit the hourly cron from an assignee job.
 
+**`second-hourly-board` (Mac e19381b51c80 is the only assigner):**
+1. Mac cron `e19381b51c80` (`hourly-channel-tasks`) is the only hourly board assigner.
+2. nbg1 and every other host never run a second hourly board.
+3. A second board, duplicate ASSIGN cron, or nbg1 assigner is class `second-hourly-board`; skip (`SKIP` + reason).
+4. Do not mint a new ASSIGN cron or board line from a second host.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

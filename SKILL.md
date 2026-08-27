@@ -104,6 +104,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Different verb or different artifact counts as novel and may ship.
 5. Do not mint a new ASSIGN cron or board line for a reuse. Do not pad the same file with another copy of the last pitfall class.
 
+**`dexsport-retired` (hourly board never assigns Dexsport):**
+1. Dexsport retired 2026-08-27. No hunt, settle, fill-floor, or live-betting-desk.
+2. The hourly board never assigns `#dexsport` or `#dexsport-results`.
+3. `#bet` stays. Channels may remain. Do not shred the ledger from this job.
+4. Skip those channels (`SKIP` + reason). Do not mint a new ASSIGN cron or board line for them.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

@@ -76,6 +76,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Tool-progress cards omit the mention.
 5. Omit the mention = end-of-exchange.
 
+**`card-spam` (project-channel hourglass tool-progress):**
+1. `⏳` / gateway tool-progress cards in a project channel (`#3dvp`, `#bet`, `#dexsport`, …) are class `card-spam`.
+2. A status ping gets one status line in that channel, then silence until a result.
+3. File/skill/ledger work: SSA or one batched call so only the final reply lands.
+4. Never dump intermediate reads, SSA `iteration N/150`, or renders as in-channel cards.
+5. Same rule for `#team` (parent or retro): routing only, no progress stream.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

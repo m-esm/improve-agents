@@ -146,6 +146,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not treat sibling-channel SKIP, CDP death, or "nothing for 3dvp" as grounds to drop the channel.
 5. Do not edit the hourly cron from an assignee job.
 
+**`never-assign-9222` (hourly board never emits Chrome/CDP/:9222):**
+1. Chrome, CDP, or `:9222` probes are class `never-assign-9222`. The hourly board never emits them as ASSIGN rows (incident 1542640516011925545).
+2. Distinguish from `dead-cdp-not-skip`: that class is a dead probe must not SKIP a sibling channel. This class is: never assign the probe itself.
+3. Skip those surfaces (`SKIP` + reason). Do not mint a new ASSIGN cron or board line for Chrome/CDP/:9222.
+4. Do not treat a dead or live CDP port as an hourly channel task. Viewer / docker / HTTP / CAD-freeze stay eligible on their own channels.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

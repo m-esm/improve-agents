@@ -160,6 +160,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not mint a new ASSIGN cron or board line from a freeze/snapshot FYI.
 5. Do not edit the hourly cron from an assignee job.
 
+**`nbg1-self-assign` (nbg1 self-ASSIGN in a project channel is not a wake for Pawl):**
+1. An nbg1 self-ASSIGN in a project channel (`#3dvp`, `#bet`, …) is class `nbg1-self-assign`.
+2. That row is nbg1 assigning itself. It is not a Pawl wake, ASSIGN, or echo.
+3. Reply `[SILENT]` or `NO_REPLY`; do not post in that channel.
+4. Do not mint a new ASSIGN cron or board line from an nbg1 self-ASSIGN.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

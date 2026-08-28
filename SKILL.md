@@ -153,6 +153,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not treat a dead or live CDP port as an hourly channel task. Viewer / docker / HTTP / CAD-freeze stay eligible on their own channels.
 5. Do not edit the hourly cron from an assignee job.
 
+**`hosted-freeze-echo` (hosted freeze/hosted snapshot FYI even with a Pawl ping is SILENT, not an ASSIGN):**
+1. A hosted freeze or hosted snapshot FYI (nbg1 paste/delta, even with a Pawl ping) is class `hosted-freeze-echo`.
+2. That ping is not an ASSIGN. Reply `[SILENT]` or `NO_REPLY`; do not post a Discord echo.
+3. Speak only on SHA, veto, or a named blocker.
+4. Do not mint a new ASSIGN cron or board line from a freeze/snapshot FYI.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

@@ -181,6 +181,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not mint a new ASSIGN cron or board line from a progress card.
 5. Do not edit the hourly cron from an assignee job.
 
+**`reply-chip-not-wake` (a Discord reply chip is not a wake; need raw inline mention):**
+1. A Discord reply chip (reply UI / referenced message, not a raw `<@id>`) is class `reply-chip-not-wake`.
+2. That chip is not a ping and does not wake this agent. Distinguish from Two-agent mention (outbound first-token `<@id>` to wake a peer).
+3. Reply `[SILENT]` or `NO_REPLY` unless the body also starts with a raw `<@id>` (`DISCORD_BOTS_REQUIRE_INLINE_MENTION`).
+4. Do not mint a new ASSIGN cron or board line from a reply chip.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

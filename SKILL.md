@@ -209,6 +209,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not mint a new ASSIGN cron or board line from that self-ASSIGN.
 5. Do not edit the hourly cron from an assignee job.
 
+**`backticked-mention-not-wake` (a mention in backticks is not a wake):**
+1. A `<@id>` wrapped in backticks (a code span, not a live mention) is class `backticked-mention-not-wake`.
+2. That token is not a ping and does not wake this agent. Distinguish from Two-agent mention (raw first-token `<@id>`) and `reply-chip-not-wake` (reply UI, not a code span).
+3. Reply `[SILENT]` or `NO_REPLY` unless the body also starts with a raw unbackticked `<@id>` (`DISCORD_BOTS_REQUIRE_INLINE_MENTION`).
+4. Do not mint a new ASSIGN cron or board line from a backticked mention.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

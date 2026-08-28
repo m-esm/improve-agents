@@ -188,6 +188,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not mint a new ASSIGN cron or board line from a reply chip.
 5. Do not edit the hourly cron from an assignee job.
 
+**`age-out-not-wake` (last-8 age-out / ch X empty is SILENT, not a wake):**
+1. A last-8 age-out or `ch X empty` is class `age-out-not-wake`.
+2. That empty window is not a wake, ASSIGN, or echo.
+3. Reply `[SILENT]` or `NO_REPLY`; do not post a Discord echo.
+4. Do not mint a new ASSIGN cron or board line from an age-out or empty channel.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

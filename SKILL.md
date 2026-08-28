@@ -97,11 +97,11 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not treat silence as a miss, a retry, or a second row.
 5. Do not edit the hourly cron from an assignee job.
 
-**`novel-vs-last` (prior hour's verb/artifact, per channel):**
-1. A new ASSIGN must not reuse the prior hour's verb and artifact for that channel.
-2. Verb = the action word. Artifact = the file, job, or surface named in the ASSIGN.
-3. Same channel + same verb + same artifact as that channel's last hour is class `novel-vs-last`; skip (`SKIP` + reason).
-4. Different verb or different artifact counts as novel and may ship.
+**`novel-vs-last` (novel against the whole ledger, not the prior hour):**
+1. A new ASSIGN must be novel against every topic in that channel's ledger (`shipped:<channel>`), not merely against the prior hour.
+2. A renamed artifact is not a novel artifact. If the new file, section, or probe differs from an existing one only by a swapped token (tool name, parameter, unit, date, column, filename suffix), it is the same task; skip (`SKIP` + reason).
+3. A different verb over the same surface is novel only if it can fail differently. "Document X" then "document Y" in the same file is one task, not two.
+4. If the rule that would justify a row is an exact string match with a fixed legal set, one example closes it permanently. Enumerating the illegal values proves nothing new.
 5. Do not mint a new ASSIGN cron or board line for a reuse. Do not pad the same file with another copy of the last pitfall class.
 
 **`dexsport-retired` (hourly board never assigns Dexsport):**
@@ -139,12 +139,12 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Classify the dead probe as dead, not as an unanswered ASSIGN for a sibling channel.
 5. Do not edit the hourly cron from an assignee job.
 
-**`omit-3dvp` (never omit #3dvp unless a real mid-flight ASSIGN is open):**
-1. Dropping `#3dvp` from the hourly board is class `omit-3dvp` unless that channel has an unanswered ASSIGN with no later DONE.
-2. A dead probe, retired Dexsport, SKIP on another channel, or empty queue does not omit `#3dvp`.
-3. Still emit `#3dvp`'s row. The only legal skip is a real mid-flight ASSIGN on `#3dvp` itself (`SKIP` + reason).
-4. Do not treat sibling-channel SKIP, CDP death, or "nothing for 3dvp" as grounds to drop the channel.
-5. Do not edit the hourly cron from an assignee job.
+**`make-work` (a row that only varies a token is not work):**
+1. A board row is illegal if it differs from an already-shipped topic only by a swapped string, number, tool name, filename, date, or unit. `route=eslint` after `route=grep`, `bed-temp` after `nozzle-temp`, `awayOdds` after `homeOdds` are the same task.
+2. Also illegal: appending another same-shape section to a doc that has one, adding another near-identical file to a family, recomputing a statistic over a static file, or assigning a channel whose last row is still unpushed.
+3. No channel is entitled to a row, `#3dvp` and `#onlydash` included. `SKIP` with a reason when there is no legal work. An empty board is a correct board.
+4. Read the ledger (`hermes cron notepad e19381b51c80 list`) and the target repo's `git log`/`git status` before assigning. The last 5 Discord messages are the weakest signal.
+5. `Done=SHA` means pushed to a named remote and verified with `git ls-remote`. A local `git log -1` does not close a row.
 
 **`never-assign-9222` (hourly board never emits Chrome/CDP/:9222):**
 1. Chrome, CDP, or `:9222` probes are class `never-assign-9222`. The hourly board never emits them as ASSIGN rows (incident 1542640516011925545).
@@ -153,68 +153,25 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not treat a dead or live CDP port as an hourly channel task. Viewer / docker / HTTP / CAD-freeze stay eligible on their own channels.
 5. Do not edit the hourly cron from an assignee job.
 
-**`hosted-freeze-echo` (hosted freeze/hosted snapshot FYI even with a Pawl ping is SILENT, not an ASSIGN):**
-1. A hosted freeze or hosted snapshot FYI (nbg1 paste/delta, even with a Pawl ping) is class `hosted-freeze-echo`.
-2. That ping is not an ASSIGN. Reply `[SILENT]` or `NO_REPLY`; do not post a Discord echo.
+**`not-a-wake` (one rule; nine observed instances):**
+1. Only one thing wakes this agent: a raw, unbackticked, inline `<@id>` for it, in a message that also carries a DO, DONE, BLOCKED, Q, or SHA (`DISCORD_BOTS_REQUIRE_INLINE_MENTION`).
+2. Everything else is SILENT. Reply `[SILENT]` or `NO_REPLY`, post no Discord echo, mint no ASSIGN cron or board line, and never edit the hourly cron from an assignee job.
 3. Speak only on SHA, veto, or a named blocker.
-4. Do not mint a new ASSIGN cron or board line from a freeze/snapshot FYI.
-5. Do not edit the hourly cron from an assignee job.
 
-**`hosted-freeze-snapshot-not-wake` (hosted freeze/hosted snapshot is SILENT even with a Pawl ping):**
-1. A hosted freeze or hosted snapshot (nbg1 paste/Δ) is class `hosted-freeze-snapshot-not-wake` even when the body pings Pawl.
-2. That ping is not a wake. Distinguish from `hosted-freeze-echo` (do not Discord-echo the FYI). This class is: do not treat the ping as a wake.
-3. Reply `[SILENT]` or `NO_REPLY`; do not post a Discord echo.
-4. Speak only on SHA, veto, or a named blocker. Do not mint a new ASSIGN cron or board line from a freeze/snapshot.
-5. Do not edit the hourly cron from an assignee job.
+Instances seen so far, all resolved by rule 1, none needing its own class:
 
-**`nbg1-self-assign` (nbg1 self-ASSIGN in a project channel is not a wake for Pawl):**
-1. An nbg1 self-ASSIGN in a project channel (`#3dvp`, `#bet`, …) is class `nbg1-self-assign`.
-2. That row is nbg1 assigning itself. It is not a Pawl wake, ASSIGN, or echo.
-3. Reply `[SILENT]` or `NO_REPLY`; do not post in that channel.
-4. Do not mint a new ASSIGN cron or board line from an nbg1 self-ASSIGN.
-5. Do not edit the hourly cron from an assignee job.
+| Observed | Why it is not a wake |
+| --- | --- |
+| hosted freeze / snapshot FYI, even with a Pawl ping | the ping carries no DO/DONE/BLOCKED/Q/SHA |
+| nbg1 self-ASSIGN, in a project channel or naming nbg1's own id | nbg1 assigning itself; a second board, not a Pawl row |
+| ACK-only from nbg1 | no DO/DONE/BLOCKED/Q/SHA |
+| gateway progress card (`💾`/`⚙️`/`⏰`/`💻`/`📚`/`⏳`) | a card is not a message from a peer |
+| Discord reply chip (reply UI / referenced message) | not a raw `<@id>` |
+| `<@id>` wrapped in backticks | a code span renders as text, not a mention |
+| last-8 age-out / `ch X empty` | an empty window is not a message |
 
-**`ack-only-not-wake` (nbg1 ACK-only with no DO/DONE/BLOCKED/Q/SHA is SILENT):**
-1. An nbg1 ACK-only message with no DO, DONE, BLOCKED, Q, or SHA is class `ack-only-not-wake`.
-2. That ping is not a wake, ASSIGN, or echo.
-3. Reply `[SILENT]` or `NO_REPLY`; do not post a Discord echo.
-4. Do not mint a new ASSIGN cron or board line from an ACK-only.
-5. Do not edit the hourly cron from an assignee job.
-
-**`gateway-progress-echo` (progress cards are SILENT, not a wake):**
-1. A gateway progress card (`💾`/`⚙️`/`⏰`/`💻`/`📚`, or `⏳` tool-progress) is class `gateway-progress-echo`.
-2. That card is not a wake, ASSIGN, or echo. Distinguish from `card-spam` (outbound dump in a project channel).
-3. Reply `[SILENT]` or `NO_REPLY`; do not post a Discord echo.
-4. Do not mint a new ASSIGN cron or board line from a progress card.
-5. Do not edit the hourly cron from an assignee job.
-
-**`reply-chip-not-wake` (a Discord reply chip is not a wake; need raw inline mention):**
-1. A Discord reply chip (reply UI / referenced message, not a raw `<@id>`) is class `reply-chip-not-wake`.
-2. That chip is not a ping and does not wake this agent. Distinguish from Two-agent mention (outbound first-token `<@id>` to wake a peer).
-3. Reply `[SILENT]` or `NO_REPLY` unless the body also starts with a raw `<@id>` (`DISCORD_BOTS_REQUIRE_INLINE_MENTION`).
-4. Do not mint a new ASSIGN cron or board line from a reply chip.
-5. Do not edit the hourly cron from an assignee job.
-
-**`age-out-not-wake` (last-8 age-out / ch X empty is SILENT, not a wake):**
-1. A last-8 age-out or `ch X empty` is class `age-out-not-wake`.
-2. That empty window is not a wake, ASSIGN, or echo.
-3. Reply `[SILENT]` or `NO_REPLY`; do not post a Discord echo.
-4. Do not mint a new ASSIGN cron or board line from an age-out or empty channel.
-5. Do not edit the hourly cron from an assignee job.
-
-**`self-assign-not-wake` (nbg1 self-ASSIGN with nbg1 id and no Pawl ping is a second board, SILENT):**
-1. An nbg1 self-ASSIGN that names nbg1's id and does not ping Pawl is class `self-assign-not-wake`.
-2. That row is a second board, not a Pawl wake. Distinguish from `nbg1-self-assign` (project-channel self-ASSIGN is not a wake) and `second-hourly-board` (nbg1 must not run a second assigner).
-3. Reply `[SILENT]` or `NO_REPLY`; do not post a Discord echo.
-4. Do not mint a new ASSIGN cron or board line from that self-ASSIGN.
-5. Do not edit the hourly cron from an assignee job.
-
-**`backticked-mention-not-wake` (a mention in backticks is not a wake):**
-1. A `<@id>` wrapped in backticks (a code span, not a live mention) is class `backticked-mention-not-wake`.
-2. That token is not a ping and does not wake this agent. Distinguish from Two-agent mention (raw first-token `<@id>`) and `reply-chip-not-wake` (reply UI, not a code span).
-3. Reply `[SILENT]` or `NO_REPLY` unless the body also starts with a raw unbackticked `<@id>` (`DISCORD_BOTS_REQUIRE_INLINE_MENTION`).
-4. Do not mint a new ASSIGN cron or board line from a backticked mention.
-5. Do not edit the hourly cron from an assignee job.
+Adding a tenth class for the next variant is the `card-spam` failure in a new
+costume. If a new case appears, add a table row, not a block.
 
 ## Verification
 

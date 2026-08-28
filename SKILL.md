@@ -174,6 +174,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not mint a new ASSIGN cron or board line from an ACK-only.
 5. Do not edit the hourly cron from an assignee job.
 
+**`gateway-progress-echo` (progress cards are SILENT, not a wake):**
+1. A gateway progress card (`💾`/`⚙️`/`⏰`/`💻`/`📚`, or `⏳` tool-progress) is class `gateway-progress-echo`.
+2. That card is not a wake, ASSIGN, or echo. Distinguish from `card-spam` (outbound dump in a project channel).
+3. Reply `[SILENT]` or `NO_REPLY`; do not post a Discord echo.
+4. Do not mint a new ASSIGN cron or board line from a progress card.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

@@ -202,6 +202,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not mint a new ASSIGN cron or board line from an age-out or empty channel.
 5. Do not edit the hourly cron from an assignee job.
 
+**`self-assign-not-wake` (nbg1 self-ASSIGN with nbg1 id and no Pawl ping is a second board, SILENT):**
+1. An nbg1 self-ASSIGN that names nbg1's id and does not ping Pawl is class `self-assign-not-wake`.
+2. That row is a second board, not a Pawl wake. Distinguish from `nbg1-self-assign` (project-channel self-ASSIGN is not a wake) and `second-hourly-board` (nbg1 must not run a second assigner).
+3. Reply `[SILENT]` or `NO_REPLY`; do not post a Discord echo.
+4. Do not mint a new ASSIGN cron or board line from that self-ASSIGN.
+5. Do not edit the hourly cron from an assignee job.
+
 ## Verification
 
 0-2 shipped artifacts with paths and an observable bar, or `[SILENT]`,

@@ -160,6 +160,13 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Do not mint a new ASSIGN cron or board line from a freeze/snapshot FYI.
 5. Do not edit the hourly cron from an assignee job.
 
+**`hosted-freeze-snapshot-not-wake` (hosted freeze/hosted snapshot is SILENT even with a Pawl ping):**
+1. A hosted freeze or hosted snapshot (nbg1 paste/Δ) is class `hosted-freeze-snapshot-not-wake` even when the body pings Pawl.
+2. That ping is not a wake. Distinguish from `hosted-freeze-echo` (do not Discord-echo the FYI). This class is: do not treat the ping as a wake.
+3. Reply `[SILENT]` or `NO_REPLY`; do not post a Discord echo.
+4. Speak only on SHA, veto, or a named blocker. Do not mint a new ASSIGN cron or board line from a freeze/snapshot.
+5. Do not edit the hourly cron from an assignee job.
+
 **`nbg1-self-assign` (nbg1 self-ASSIGN in a project channel is not a wake for Pawl):**
 1. An nbg1 self-ASSIGN in a project channel (`#3dvp`, `#bet`, …) is class `nbg1-self-assign`.
 2. That row is nbg1 assigning itself. It is not a Pawl wake, ASSIGN, or echo.

@@ -139,6 +139,27 @@ post the blocker and stop. Do not invent a proposal instead.
 4. Classify the dead probe as dead, not as an unanswered ASSIGN for a sibling channel.
 5. Do not edit the hourly cron from an assignee job.
 
+**`no-goal-source` (a row that traces to no goal on disk is a random walk):**
+1. Creative forward motion needs a destination. Rows derived from the last 5 Discord messages can only vary the previous row, which is how `route=grep` became `route=eslint` and `nozzle-temp` became `bed-temp`.
+2. Read the goal where it lives: 3dvp `.overnight/BACKLOG.md` + `docs/PLAN-*.md` + `docs/AGENT-LOOP.md`, mechlib `mechlib/usecases.py` + `gallery/`, onlydash sub-repo issues and unmerged branches, bet `prisma/schema.prisma`. 3dvp had 11 unchecked backlog items through 139 consecutive jobs that never assigned one.
+3. If the backlog is empty, the row is a capability the product lacks, stated in one sentence. If neither exists, `SKIP`.
+4. Do not shrink a row to fit an hour. A row may span ticks; say so. "Finishable in <1h" plus "Done=paste" selects for the cheapest artifact, which is a doc note.
+
+**`calcified-misread` (the agent's own output becomes its law):**
+1. A constraint an agent writes into a repo doc is read back by the next run as ground truth. A misreading therefore hardens instead of decaying.
+2. Observed: mechlib AGENTS.md bans CadQuery/OpenSCAD/NopSCADlib *as a dependency for growing the vitamin catalog*. A run generalized it to "No CadQuery. No geometry.", wrote that into `wiper-kit.md`, and every later run obeyed it. In a parametric geometry library that left prose as the only legal output.
+3. Before obeying a constraint quoted in a doc an agent wrote, check it against the repo's own AGENTS.md/CLAUDE.md. Quote the source line.
+4. When a constraint blocks a repo's stated purpose, that is the signal it was misread, not a reason to narrow the work.
+
+**`no-visual-proof` (green numbers are not a look):**
+1. Rows that change a product close on a rendered artifact plus the sentence someone wrote after looking at it, not on a paste. `docs/AGENT-LOOP.md` in 3dvp: never claim done on green numbers alone.
+2. The tooling exists and was unused: mechlib `gallery/build_gallery.py` and `gallery/collision_gate.py` (161 demos, 0 failures, 45s), 3dvp per-product `build.py` + filmstrip/shoot, onlydash the live URL.
+3. Downscale PNGs to <=1600 px before reading them.
+
+**`unequipped-row` (a task minted without its domain skill can only produce prose):**
+1. Minted ASSIGN crons default to `skills=['do-it-properly']`. A geometry task arriving with no geometry skill writes notes about geometry instead of geometry.
+2. Every board row states its own `skills=` and `workdir=`. Geometry: `do-it-properly,3d-print-modeling,moshen-projects`. Multi-file code: add `smart-subagents`.
+
 **`make-work` (a row that only varies a token is not work):**
 1. A board row is illegal if it differs from an already-shipped topic only by a swapped string, number, tool name, filename, date, or unit. `route=eslint` after `route=grep`, `bed-temp` after `nozzle-temp`, `awayOdds` after `homeOdds` are the same task.
 2. Also illegal: appending another same-shape section to a doc that has one, adding another near-identical file to a family, recomputing a statistic over a static file, or assigning a channel whose last row is still unpushed.

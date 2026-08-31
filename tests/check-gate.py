@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Fixture ticks for scripts/improve-agents-gate.py. Stdlib only."""
 import json, os, subprocess, sys, tempfile, time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "improve-agents-gate.py"
+DOC_GATE = ROOT / "scripts" / "doc_only_gate.py"
 WAKE_STUB = "Script gate returned `wakeAgent=false`"
 SELF_ID = "e2010b56833a"
 
@@ -167,6 +168,86 @@ def test_cron_delivery_error():
     print("ok cron delivery-error signal")
 
 
+def check_doc_only(repo, commit="HEAD"):
+    p = subprocess.run(
+        [sys.executable, str(DOC_GATE), str(repo), commit],
+        capture_output=True,
+        text=True,
+    )
+    return p.returncode, p.stdout, p.stderr
+
+
+def _git(repo, args, date=None):
+    cmd = [
+        "git",
+        "-C",
+        str(repo),
+        "-c",
+        "user.email=gate@example.com",
+        "-c",
+        "user.name=Gate",
+        *args,
+    ]
+    env = os.environ.copy()
+    env.update({
+        "GIT_AUTHOR_NAME": "Gate",
+        "GIT_AUTHOR_EMAIL": "gate@example.com",
+        "GIT_COMMITTER_NAME": "Gate",
+        "GIT_COMMITTER_EMAIL": "gate@example.com",
+    })
+    if date is not None:
+        stamp = date.strftime("%Y-%m-%dT%H:%M:%S +0000")
+        env["GIT_AUTHOR_DATE"] = stamp
+        env["GIT_COMMITTER_DATE"] = stamp
+    p = subprocess.run(cmd, capture_output=True, text=True, env=env)
+    assert p.returncode == 0, p.stderr or p.stdout
+    return p
+
+
+def _init_git_repo():
+    root = Path(tempfile.mkdtemp(prefix="doc-only-"))
+    _git(root, ["init", "-b", "main"])
+    _git(root, ["config", "commit.gpgsign", "false"])
+    return root
+
+
+def _commit_file(repo, relpath, content, date, msg):
+    path = repo / relpath
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content)
+    _git(repo, ["add", "--", relpath], date=date)
+    _git(repo, ["commit", "-m", msg], date=date)
+
+
+def _old_product_then_skill_md(repo, extra_in_window=None):
+    now = datetime.now(timezone.utc)
+    old = now - timedelta(days=20)
+    mid = now - timedelta(days=5)
+    recent = now - timedelta(days=1)
+    _commit_file(repo, "scripts/app.py", "print(1)\n", old, "product outside 14d")
+    if extra_in_window:
+        rel, body = extra_in_window
+        _commit_file(repo, rel, body, mid, "product inside 14d")
+    _commit_file(repo, "SKILL.md", "# skill v1\n", mid, "skill md 1")
+    _commit_file(repo, "SKILL.md", "# skill v2\n", recent, "skill md 2")
+
+
+def test_skill_md_only_when_14d_doc_only():
+    repo = _init_git_repo()
+    _old_product_then_skill_md(repo)
+    rc, out, err = check_doc_only(repo)
+    assert rc != 0, (rc, out, err)
+    print("ok doc-only skill.md fixture fails")
+
+
+def test_skill_md_only_ok_when_product_in_14d():
+    repo = _init_git_repo()
+    _old_product_then_skill_md(repo, extra_in_window=("scripts/new.py", "print(2)\n"))
+    rc, out, err = check_doc_only(repo)
+    assert rc == 0, (rc, out, err)
+    print("ok product motion allows skill.md")
+
+
 def main() -> int:
     test_quiet()
     test_wake()
@@ -174,6 +255,8 @@ def main() -> int:
     test_ack_after_non_silent()
     test_no_ack_on_wake_stub()
     test_cron_delivery_error()
+    test_skill_md_only_when_14d_doc_only()
+    test_skill_md_only_ok_when_product_in_14d()
     return 0
 
 

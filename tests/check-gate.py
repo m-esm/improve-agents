@@ -9,6 +9,7 @@ SCRIPT = ROOT / "scripts" / "improve-agents-gate.py"
 DOC_GATE = ROOT / "scripts" / "doc_only_gate.py"
 WAKE_STUB = "Script gate returned `wakeAgent=false`"
 SELF_ID = "e2010b56833a"
+BOARD_ID = "e19381b51c80"
 
 
 def run(env):
@@ -33,6 +34,8 @@ class Fx:
         self.state_path = self.root / "state.json"
         self.outdir = self.root / "out"
         self.outdir.mkdir()
+        self.board_outdir = self.root / "board-out"
+        self.board_outdir.mkdir()
         self.env = os.environ.copy()
         self.env.update({
             "IMPROVE_AGENTS_LEDGER": str(self.ledger),
@@ -40,6 +43,8 @@ class Fx:
             "IMPROVE_AGENTS_STATE": str(self.state_path),
             "IMPROVE_AGENTS_OUTPUT_DIR": str(self.outdir),
             "IMPROVE_AGENTS_SELF_ID": SELF_ID,
+            "IMPROVE_AGENTS_BOARD_ID": BOARD_ID,
+            "IMPROVE_AGENTS_BOARD_OUTPUT_DIR": str(self.board_outdir),
         })
         self.write_jobs()
         self.ledger.write_text("")
@@ -62,6 +67,11 @@ class Fx:
 
     def write_output(self, body, name="review.md"):
         path = self.outdir / name
+        path.write_text(body)
+        return path
+
+    def write_board(self, body, name="board.md"):
+        path = self.board_outdir / name
         path.write_text(body)
         return path
 
@@ -166,6 +176,70 @@ def test_cron_delivery_error():
     assert "src=cron" in out
     assert "delivery_error=1" in out
     print("ok cron delivery-error signal")
+
+
+def test_board_capability_skip_wakes():
+    fx = Fx()
+    fx.write_board(f"""**Run Time:** {now_iso()}
+
+Prompt example:
+## Response
+#bar — SKIP — example only
+
+### CAPABILITY ROWS - a funded channel with an empty queue owes an invention
+#foo - queue empty and funded; owes ONE named capability this tick
+#bar - queue empty and funded; owes ONE named capability this tick
+
+## Response
+#bar — ASSIGN — useful work
+#foo — SKIP — no eligible task
+""")
+    payload, out = fx.tick()
+    native = f"board:{BOARD_ID}:board.md"
+    assert payload.get("wakeAgent") is True, payload
+    assert payload.get("pending_ids") == [native], payload
+    assert f"src=board job_id={BOARD_ID} file=board.md skipped=#foo" in out, out
+    print("ok board capability SKIP wakes")
+
+
+def test_board_non_capability_skip_quiet():
+    fx = Fx()
+    fx.write_board("""### CAPABILITY ROWS
+#foo - queue empty and funded; owes ONE named capability this tick
+
+## Response
+#infra – SKIP – not in OPEN BACKLOG or CAPABILITY this tick
+""")
+    payload, _ = fx.tick()
+    assert payload == {"wakeAgent": False}, payload
+    print("ok board non-capability SKIP quiet")
+
+
+def test_board_capability_assign_quiet():
+    fx = Fx()
+    fx.write_board("""### CAPABILITY ROWS
+#foo - queue empty and funded; owes ONE named capability this tick
+
+## Response
+#foo - ASSIGN - implement the capability
+""")
+    payload, _ = fx.tick()
+    assert payload == {"wakeAgent": False}, payload
+    print("ok board capability ASSIGN quiet")
+
+
+def test_board_deferred_only_skip_quiet():
+    fx = Fx()
+    fx.write_board("""### CAPABILITY ROWS
+(deferred to the next budget day, only 1 left: #foo)
+(none - no funded capability rows)
+
+## Response
+#foo — SKIP — deferred ledger CAPABILITY work
+""")
+    payload, _ = fx.tick()
+    assert payload == {"wakeAgent": False}, payload
+    print("ok board deferred-only SKIP quiet")
 
 
 def check_doc_only(repo, commit="HEAD"):
@@ -313,6 +387,10 @@ def main() -> int:
     test_ack_after_non_silent()
     test_no_ack_on_wake_stub()
     test_cron_delivery_error()
+    test_board_capability_skip_wakes()
+    test_board_non_capability_skip_quiet()
+    test_board_capability_assign_quiet()
+    test_board_deferred_only_skip_quiet()
     test_skill_md_only_when_14d_doc_only()
     test_skill_md_only_ok_when_product_in_14d()
     test_docs_plus_skill_md_when_14d_doc_only()

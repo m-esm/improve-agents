@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -33,6 +34,13 @@ OUTPUT_DIR = Path(
     os.environ.get(
         "IMPROVE_AGENTS_OUTPUT_DIR",
         HOME / ".hermes/cron/output" / SELF_ID,
+    )
+)
+BOARD_ID = os.environ.get("IMPROVE_AGENTS_BOARD_ID", "e19381b51c80")
+BOARD_OUTPUT_DIR = Path(
+    os.environ.get(
+        "IMPROVE_AGENTS_BOARD_OUTPUT_DIR",
+        HOME / ".hermes/cron/output" / BOARD_ID,
     )
 )
 BOOTSTRAP_AGE = timedelta(days=2)
@@ -235,6 +243,93 @@ def _cron_line(job: dict) -> str:
     )
 
 
+def _latest_board() -> tuple[Path, str] | None:
+    if BOARD_ID == SELF_ID or not BOARD_OUTPUT_DIR.is_dir():
+        return None
+    try:
+        files = sorted(
+            BOARD_OUTPUT_DIR.glob("*.md"), key=lambda path: path.stat().st_mtime
+        )
+    except OSError:
+        return None
+    if not files:
+        return None
+    path = files[-1]
+    try:
+        body = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    if not body.strip() or body.strip() == WAKE_STUB:
+        return None
+    return path, body
+
+
+def _board_capability_channels(body: str) -> set[str]:
+    heading = re.search(r"(?m)^### CAPABILITY ROWS\b", body)
+    if heading is None:
+        return set()
+    section = body[heading.end() :]
+    next_heading = re.search(r"(?m)^#{1,3}\s+", section)
+    if next_heading is not None:
+        section = section[: next_heading.start()]
+    pattern = re.compile(
+        r"^\s*(?:[-*+]\s+)?`?#([A-Za-z0-9][A-Za-z0-9_-]*)`?\b"
+        r".*\bowes ONE named capability this tick\b",
+        re.IGNORECASE,
+    )
+    channels = set()
+    for line in section.splitlines():
+        match = pattern.match(line)
+        if match is not None:
+            channels.add(match.group(1).lower())
+    return channels
+
+
+def _board_skipped_channels(body: str) -> set[str]:
+    responses = list(re.finditer(r"(?m)^## Response\s*$", body))
+    if not responses:
+        return set()
+    response = body[responses[-1].end() :]
+    pattern = re.compile(
+        r"^\s*(?:[-*+]\s+)?#([A-Za-z0-9][A-Za-z0-9_-]*)\s*"
+        r"[—–-]\s*SKIP\s*[—–-]\s*.+$",
+        re.IGNORECASE,
+    )
+    channels = set()
+    for line in response.splitlines():
+        match = pattern.match(line)
+        if match is not None:
+            channels.add(match.group(1).lower())
+    return channels
+
+
+def _board_timestamp(path: Path, body: str) -> datetime | None:
+    run_time = re.search(r"(?m)^\*\*Run Time:\*\*\s*(.+?)\s*$", body)
+    if run_time is not None:
+        raw = run_time.group(1).strip().replace(" UTC", "+00:00")
+        parsed = _parse_ts(raw)
+        if parsed is not None:
+            return parsed
+    try:
+        return datetime.fromtimestamp(path.stat().st_mtime, timezone.utc)
+    except OSError:
+        return None
+
+
+def _board_candidate() -> tuple[str, datetime | None, str] | None:
+    latest = _latest_board()
+    if latest is None:
+        return None
+    path, body = latest
+    skipped = _board_capability_channels(body) & _board_skipped_channels(body)
+    if not skipped:
+        return None
+    names = ",".join(f"#{name}" for name in sorted(skipped))
+    native = f"board:{BOARD_ID}:{path.name}"
+    line = f"src=board job_id={BOARD_ID} file={path.name} skipped={names}"
+    return native, _board_timestamp(path, body), line
+
+
 def _batch_id(ids: list[str]) -> str:
     blob = ",".join(ids).encode("utf-8")
     return hashlib.sha256(blob).hexdigest()[:12]
@@ -275,6 +370,9 @@ def main() -> int:
             continue
         native = _cron_native_id(job)
         candidates.append((native, _parse_ts(job.get("last_run_at")), _cron_line(job)))
+    board = _board_candidate()
+    if board is not None:
+        candidates.append(board)
 
     if not STATE.exists() and not state.get("acked"):
         state["acked"] = _bootstrap_acked([(i, t) for i, t, _ in candidates])

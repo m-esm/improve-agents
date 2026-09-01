@@ -1,0 +1,6 @@
+#!/bin/sh
+# Inspect the index (staged names), not HEAD. Path rules live in doc_only_gate.py.
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd) || exit 2
+gate="$here/../doc_only_gate.py"
+repo=$(git rev-parse --show-toplevel) || exit 2
+exec python3 "$gate" "$repo" --index

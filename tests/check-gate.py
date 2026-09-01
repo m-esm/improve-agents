@@ -248,6 +248,64 @@ def test_skill_md_only_ok_when_product_in_14d():
     print("ok product motion allows skill.md")
 
 
+def test_docs_plus_skill_md_when_14d_doc_only():
+    repo = _init_git_repo()
+    now = datetime.now(timezone.utc)
+    old = now - timedelta(days=20)
+    mid = now - timedelta(days=5)
+    recent = now - timedelta(days=1)
+    _commit_file(repo, "scripts/app.py", "print(1)\n", old, "product outside 14d")
+    _commit_file(repo, "SKILL.md", "# skill v1\n", mid, "skill md 1")
+    (repo / "SKILL.md").write_text("# skill v2\n")
+    (repo / "README.md").write_text("# readme\n")
+    _git(repo, ["add", "--", "SKILL.md", "README.md"], date=recent)
+    _git(repo, ["commit", "-m", "docs+skill"], date=recent)
+    rc, out, err = check_doc_only(repo)
+    assert rc != 0, (rc, out, err)
+    print("ok docs+SKILL.md fixture fails")
+
+
+def test_this_repo_head_runs_doc_only_gate():
+    rc, out, err = check_doc_only(ROOT, "HEAD")
+    assert rc == 0, (rc, out, err)
+    print("ok this repo HEAD runs doc-only gate")
+
+
+def test_pre_commit_blocks_docs_plus_skill_md():
+    repo = _init_git_repo()
+    now = datetime.now(timezone.utc)
+    old = now - timedelta(days=20)
+    mid = now - timedelta(days=5)
+    _commit_file(repo, "scripts/app.py", "print(1)\n", old, "product outside 14d")
+    _commit_file(repo, "SKILL.md", "# skill v1\n", mid, "skill md 1")
+    hooks = ROOT / "scripts" / "githooks"
+    _git(repo, ["config", "core.hooksPath", str(hooks)])
+    (repo / "SKILL.md").write_text("# skill v2\n")
+    (repo / "docs").mkdir(exist_ok=True)
+    (repo / "docs" / "note.md").write_text("note\n")
+    _git(repo, ["add", "--", "SKILL.md", "docs/note.md"])
+    env = os.environ.copy()
+    env.update({
+        "GIT_AUTHOR_NAME": "Gate",
+        "GIT_AUTHOR_EMAIL": "gate@example.com",
+        "GIT_COMMITTER_NAME": "Gate",
+        "GIT_COMMITTER_EMAIL": "gate@example.com",
+    })
+    p = subprocess.run(
+        [
+            "git", "-C", str(repo),
+            "-c", "user.email=gate@example.com",
+            "-c", "user.name=Gate",
+            "commit", "-m", "docs+skill",
+        ],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    assert p.returncode != 0, (p.returncode, p.stdout, p.stderr)
+    print("ok pre-commit blocks docs+SKILL.md")
+
+
 def main() -> int:
     test_quiet()
     test_wake()
@@ -257,6 +315,9 @@ def main() -> int:
     test_cron_delivery_error()
     test_skill_md_only_when_14d_doc_only()
     test_skill_md_only_ok_when_product_in_14d()
+    test_docs_plus_skill_md_when_14d_doc_only()
+    test_this_repo_head_runs_doc_only_gate()
+    test_pre_commit_blocks_docs_plus_skill_md()
     return 0
 
 

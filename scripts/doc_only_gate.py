@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail SKILL.md-only commits when 14d product motion is DOC-ONLY. Stdlib + git."""
+"""Fail doc-only commits when 14d product motion is DOC-ONLY. Stdlib + git."""
 from __future__ import annotations
 
 import subprocess
@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 DOC_NAMES = frozenset({"SKILL.md", "README.md", "LICENSE", ".gitignore"})
+INDEX_ALIASES = frozenset({"--index", "--cached", ":index"})
 
 
 def is_doc_only_path(path: str) -> bool:
@@ -47,19 +48,29 @@ def commit_paths(repo: Path, commit: str) -> list[str]:
     return [ln.strip() for ln in p.stdout.splitlines() if ln.strip()]
 
 
+def index_paths(repo: Path) -> list[str]:
+    p = _git(repo, "diff", "--cached", "--name-only")
+    if p.returncode != 0:
+        raise RuntimeError(p.stderr.strip() or "git diff --cached failed")
+    return [ln.strip() for ln in p.stdout.splitlines() if ln.strip()]
+
+
 def window_is_doc_only(paths: list[str]) -> bool:
     if not paths:
         return False
     return all(is_doc_only_path(p) for p in paths)
 
 
-def is_skill_md_only(paths: list[str]) -> bool:
-    return set(paths) == {"SKILL.md"}
+def is_doc_only_commit(paths: list[str]) -> bool:
+    if not paths:
+        return False
+    return all(is_doc_only_path(p) for p in paths)
 
 
 def check_repo(repo: Path, commit: str = "HEAD") -> int:
-    """1 when 14d motion is DOC-ONLY and commit is SKILL.md-only, else 0."""
-    if window_is_doc_only(paths_since(repo)) and is_skill_md_only(commit_paths(repo, commit)):
+    """1 when 14d motion is DOC-ONLY and the commit/index is doc-only, else 0."""
+    paths = index_paths(repo) if commit in INDEX_ALIASES else commit_paths(repo, commit)
+    if window_is_doc_only(paths_since(repo)) and is_doc_only_commit(paths):
         return 1
     return 0
 

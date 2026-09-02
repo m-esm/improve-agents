@@ -221,7 +221,11 @@ def _read_ledger() -> list[dict]:
 def _cron_qualifies(job: dict) -> bool:
     if job.get("id") == SELF_ID:
         return False
-    if job.get("enabled") is False:
+    failed_assign = (
+        (job.get("name") or "").startswith("assign-")
+        and job.get("last_status") == "error"
+    )
+    if job.get("enabled") is False and not failed_assign:
         return False
     if job.get("last_status") == "error":
         return True

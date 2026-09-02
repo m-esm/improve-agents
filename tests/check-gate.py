@@ -178,6 +178,38 @@ def test_cron_delivery_error():
     print("ok cron delivery-error signal")
 
 
+def test_disabled_assign_error_wakes():
+    fx = Fx()
+    run_at = now_iso()
+    fx.write_jobs(others=[{
+        "id": "44228b7a3d75",
+        "name": "assign-01-ssa-exit2-clone",
+        "enabled": False,
+        "last_status": "error",
+        "last_run_at": run_at,
+    }])
+    payload, out = fx.tick()
+    native = f"cron:44228b7a3d75:{run_at}"
+    assert payload.get("wakeAgent") is True, payload
+    assert payload.get("pending_ids") == [native], payload
+    assert "src=cron job_id=44228b7a3d75" in out, out
+    print("ok disabled assign error wakes")
+
+
+def test_disabled_non_assign_error_quiet():
+    fx = Fx()
+    fx.write_jobs(others=[{
+        "id": "failed-other",
+        "name": "elsewhere",
+        "enabled": False,
+        "last_status": "error",
+        "last_run_at": now_iso(),
+    }])
+    payload, _ = fx.tick()
+    assert payload == {"wakeAgent": False}, payload
+    print("ok disabled non-assign error quiet")
+
+
 def test_board_capability_skip_wakes():
     fx = Fx()
     fx.write_board(f"""**Run Time:** {now_iso()}
@@ -387,6 +419,8 @@ def main() -> int:
     test_ack_after_non_silent()
     test_no_ack_on_wake_stub()
     test_cron_delivery_error()
+    test_disabled_assign_error_wakes()
+    test_disabled_non_assign_error_quiet()
     test_board_capability_skip_wakes()
     test_board_non_capability_skip_quiet()
     test_board_capability_assign_quiet()
